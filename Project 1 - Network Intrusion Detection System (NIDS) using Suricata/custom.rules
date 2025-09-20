@@ -1,0 +1,11 @@
+#Detect Nmap SYN scan (TCP SYN to many ports)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"NIDS: Possible Nmap SYN scan"; flags:S; threshold: type both, track by_src, count 20, seconds 60; sid:1000001; rev:1;)
+
+#Detect Nmap FIN/XMAS/NULL scans (odd flags)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"NIDS: Possible Nmap FIN/XMAS/NULL scan"; flags:FPU; threshold: type both, track by_src, count 10, seconds 60; sid:1000002; rev:1)
+
+#Detect SSH brute-force (many connections to port 22)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"NIDS: SSH brute-force attempt detected"; detection_filter: track by_src, count 5, seconds 60; sid:1000003; rev:1;)
+
+#Detect simple HTTP C2 beacon pattern (suspicious User-Agent or fixed URI)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"NIDS: Suspicious HTTP beacon (possible C2)"; http.user_agent; content:"BadAgent/1.0"; nocase; sid:1000004; rev:1;)
