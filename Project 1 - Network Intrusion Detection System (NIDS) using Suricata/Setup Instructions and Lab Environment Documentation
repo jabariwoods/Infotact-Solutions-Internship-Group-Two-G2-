@@ -41,3 +41,28 @@ nmap -sS -p 1-65535 -T4 <Target_IP>
 nmap -sF <Target_IP>
 nmap -sX <Target_IP>
 
+
+### Brute-Force Attacks (Hydra)
+
+hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://<Target_IP>
+
+text
+
+### Simple C2 Beacon (Python Script)
+
+import time
+import requests
+while True:
+requests.get("http://<C2-server>/beacon")
+time.sleep(10)
+
+## Log Location and Alert Review
+
+- Alerts are logged in `/var/log/suricata/eve.json`.
+- Quick summaries are available in `/var/log/suricata/fast.log`.
+
+## Recommendations
+
+- Adjust IP ranges (`HOME_NET`, `EXTERNAL_NET`) in Suricata config for your environment.
+- Tune detection rules and thresholds to reduce false positives.
+- Expand custom rules for additional detection as required.
