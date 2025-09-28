@@ -8,4 +8,5 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"NIDS: Possible Nmap FIN/XMAS/
 alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"NIDS: SSH brute-force attempt detected"; detection_filter: track by_src, count 5, seconds 60; sid:1000003; rev:1;)
 
 #Detect simple HTTP C2 beacon pattern (suspicious User-Agent or fixed URI)
-alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"NIDS: Suspicious HTTP beacon (possible C2)"; http.user_agent; content:"BadAgent/1.0"; nocase; sid:1000004; rev:1;)
+alert http any any -> any any (msg:"Malware C2 beacon"; flow:to_server,established; http.uri; content:"/beacon"; nocase; sid:1000001; rev:1;)
+
