@@ -1,0 +1,26 @@
+# Detect ICMP ping traffic (basic reconnaissance)
+alert icmp any any -> any any (msg:"ICMP Ping Detected"; sid:10000001; rev:1;)
+
+# Detect Nmap SYN scan (TCP SYN packets to any port)
+alert tcp any any -> any any (flags:S; msg:"Nmap SYN Scan Detected"; sid:10000002; rev:1;)
+
+# Detect Nmap FIN scan (TCP FIN packets)
+alert tcp any any -> any any (flags:F; flow:stateless; msg:"Nmap FIN Scan Detected"; sid:10000003; rev:1;)
+
+# Detect Nmap Xmas scan (FIN, PSH, URG flags set)
+alert tcp any any -> any any (flags:FPU; flow:stateless; msg:"Nmap Xmas Scan Detected"; sid:10000004; rev:1;)
+
+# Detect Nmap Null scan (no flags set)
+alert tcp any any -> any any (flags:0; flow:stateless; msg:"Nmap Null Scan Detected"; sid:10000005; rev:1;)
+
+# Detect SSH brute force attempts (5 tries in 30 seconds)
+alert tcp any any -> any 22 (msg:"SSH Brute Force Attempt"; flow:to_server,established; threshold:type both, track by_src, count 5, seconds 30; sid:10000006; rev:1;)
+
+# Detect successful SSH login (connection established)
+alert tcp any any -> any 22 (msg:"SSH Connection Established"; flow:to_server,established; sid:10000007; rev:1;)
+
+# Detect SSH brute force attack (5 attempts in 60 seconds)
+alert tcp any any -> any 22 (msg:"SSH Brute Force Attack"; flow:to_server,established; detection_filter:track by_src, count 5, seconds 60; sid:10000008; rev:1;)
+
+# Detect malware beaconing behavior via HTTP URI and User-Agent
+alert http any any -> any any (msg:"Malware C2 Beacon"; flow:to_server,established; content:"/beacon"; nocase; content:"User-Agent: MalwareBot"; http_header; sid:10000009; rev:1;)
