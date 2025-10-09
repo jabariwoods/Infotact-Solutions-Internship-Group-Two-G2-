@@ -28,7 +28,7 @@ sudo apt install suricata
 ### Deploy Custom Rules
 
 - Place `custom.rules` in `/etc/suricata/rules/`.
-- Ensure `suricata.yaml` references `custom.rules`.
+- Ensure `suricata.yaml` references `local.rules`.
 - Restart Suricata:
 sudo systemctl restart suricata
 
@@ -50,11 +50,21 @@ text
 
 ### Simple C2 Beacon (Python Script)
 
-import time
 import requests
-while True:
-requests.get("http://<C2-server>/beacon")
-time.sleep(10)
+import time
+TARGET_URL = "http://<C2-server>/beacon"
+HEADERS = { "User-Agent": "MalwareBot" }
+def send_beacon():
+    while True:
+        try:
+            response = requests.get(TARGET_URL, headers=HEADERS)
+            print(f"Beacon sent: {response.status_code}")
+        except Exception as e:
+            print(f"Error sending beacon: {e}")
+        time.sleep(10) # Beacon every 10 seconds
+
+if __name__ == "__main__":
+    send_beacon()
 
 ## Log Location and Alert Review
 
