@@ -1,1 +1,12 @@
-### Setup
+##System Requirements
+Target System: Ubuntu Server (tested on 25.04)
+
+Attacker System: Kali Linux (or any Linux host with curl)
+
+Web Server: Apache2 with PHP support
+
+Database: MySQL
+
+WAF Engine: ModSecurity (libapache2-mod-security2)
+
+Test App: DVWA (Damn Vulnerable Web Application)
