@@ -10,3 +10,105 @@ Database: MySQL
 WAF Engine: ModSecurity (libapache2-mod-security2)
 
 Test App: DVWA (Damn Vulnerable Web Application)
+
+## Step 1: Update System and Install Base Packages
+
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y apache2 mysql-server php php-mysqli php-gd libapache2-mod-php git unzip curl build-essential
+sudo apt install -y php-curl php-mbstring php-xml php-zip
+
+## Enable Services
+
+sudo systemctl enable --now apache2
+sudo systemctl enable --now mysql
+
+## Step 2: Install ModSecurity and OWASP CRS
+
+sudo apt install -y libapache2-mod-security2
+sudo cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf
+sudo sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine DetectionOnly/' /etc/modsecurity/modsecurity.conf
+
+# Install OWASP Core Rule Set
+
+cd /usr/local/src
+sudo git clone https://github.com/coreruleset/coreruleset.git
+sudo mv coreruleset /etc/modsecurity/crs
+sudo cp /etc/modsecurity/crs/crs-setup.conf.example /etc/modsecurity/crs/crs-setup.conf
+
+# Create include file for Apache
+
+sudo nano /etc/modsecurity/load-crs.conf
+
+# Paste the following into load-crs.conf:
+IncludeOptional /etc/modsecurity/modsecurity.conf
+IncludeOptional /etc/modsecurity/crs/crs-setup.conf
+IncludeOptional /etc/modsecurity/crs/rules/*.conf
+IncludeOptional /etc/modsecurity/custom_rules.conf
+
+sudo a2enmod security2
+sudo systemctl restart apache2
+
+## Step 3: Install DVWA
+
+cd /var/www/html
+sudo git clone https://github.com/digininja/DVWA.git
+sudo chown -R www-data:www-data DVWA
+cd DVWA/config
+sudo cp config.inc.php.dist config.inc.php
+
+# Edit config.inc.php:
+# $_DVWA['db_user'] = 'root';
+# $_DVWA['db_password'] = 'your_mysql_root_password';
+# $_DVWA['db_database'] = 'dvwa';
+
+sudo mysql -u root -p
+
+# In MySQL shell:
+# CREATE DATABASE dvwa;
+# CREATE USER 'dvwa'@'localhost' IDENTIFIED BY 'dvwa_pass';
+# GRANT ALL PRIVILEGES ON dvwa.* TO 'dvwa'@'localhost';
+# FLUSH PRIVILEGES;
+# EXIT;
+
+# In browser: http://<vm-ip>/DVWA/setup.php → Click “Create / Reset Database”
+# Set DVWA security level to Low
+
+## Step 4: Configure ModSecurity for DVWA
+
+# Edit /etc/modsecurity/modsecurity.conf:
+# SecRuleEngine DetectionOnly
+# SecRequestBodyAccess On
+# SecResponseBodyAccess On
+# SecAuditEngine RelevantOnly
+# SecAuditLog /var/log/apache2/modsec_audit.log
+# SecAuditLogParts ABIJDEFHZ
+# SecDebugLog /var/log/apache2/modsec_debug.log
+# SecDebugLogLevel 0
+
+sudo nano /etc/modsecurity/custom_rules.conf
+
+# Paste custom rules (SQLi, XSS, scanner block, rate limit, etc.)
+sudo systemctl restart apache2
+
+## Step 5: Testing Methodology
+
+# SQL Injection Test
+curl -i -X POST "http://<target-ip>/login.php" -d "username=test UNION SELECT 1,2,3 -- &password=x"
+
+# XSS Test
+curl -i -G "http://<vm-ip>/DVWA/vulnerabilities/xss_r/?name=<script>alert(1)</script>"
+
+# Scanner UA Test
+curl -A "sqlmap" -i "http://<vm-ip>/DVWA/"
+
+# Rate Limit Test
+for i in {1..120}; do curl -s -o /dev/null "http://<vm-ip>/DVWA/"; done
+
+## Step 6: Logs and Diagnostics
+
+# ModSecurity Audit Log: /var/log/apache2/modsec_audit.log
+# Apache Error Log: /var/log/apache2/error.log
+# Apache Access Log: /var/log/apache2/access.log
+# Debug Log: /var/log/apache2/modsec_debug.log
+
+sudo tail -F /var/log/apache2/modsec_audit.log /var/log/apache2/error.log
