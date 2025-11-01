@@ -104,7 +104,18 @@ curl -A "sqlmap" -i "http://<vm-ip>/DVWA/"
 # Rate Limit Test
 for i in {1..120}; do curl -s -o /dev/null "http://<vm-ip>/DVWA/"; done
 
-## Step 6: Logs and Diagnostics
+## Step 6: Custom Rules Location
+
+# All custom ModSecurity rules for this lab are stored in:
+# /etc/apache2/conf-available/modsecurity-custom.conf
+
+# Ensure this file is included in your Apache configuration and loaded properly.
+# You can symlink it and enable it using:
+
+sudo ln -s /etc/apache2/conf-available/modsecurity-custom.conf /etc/apache2/conf-enabled/
+sudo systemctl restart apache2
+
+## Step 7: Logs and Diagnostics
 
 # ModSecurity Audit Log: /var/log/apache2/modsec_audit.log
 # Apache Error Log: /var/log/apache2/error.log
