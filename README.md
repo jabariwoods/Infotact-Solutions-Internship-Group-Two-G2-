@@ -15,3 +15,8 @@
 - Validated rule effectiveness through ModSecurity audit logs and Apache error logs, confirming successful detection and blocking of malicious requests.
 - Recommended layered detection strategies, input normalization, phased rule tuning, and integration of community rule sets (e.g., OWASP CRS, libinjection) to enhance coverage and reduce false positives.
 - Provided reproducible setup instructions, rule configuration, and tuning guidance to support further development and educational use.
+
+### Threat Intel Processor 
+
+-
+
