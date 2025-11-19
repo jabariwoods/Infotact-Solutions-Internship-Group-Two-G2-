@@ -16,7 +16,13 @@
 - Recommended layered detection strategies, input normalization, phased rule tuning, and integration of community rule sets (e.g., OWASP CRS, libinjection) to enhance coverage and reduce false positives.
 - Provided reproducible setup instructions, rule configuration, and tuning guidance to support further development and educational use.
 
-### Threat Intel Processor 
+### Threat Intel Processor (Completed)
 
--
+- Developed a Python-based tool to automate the ingestion of malicious IP indicators from AbuseIPDB using its API.
+- Implemented a local SQLite database to store Indicators of Compromise (IOCs) including IP address, abuse confidence score, and country code.
+- Built a pipeline to fetch, parse, and normalize threat data, ensuring duplicate entries are handled gracefully with INSERT OR IGNORE.
+- Designed a log correlation engine that scans system/network logs against the IOC database, flagging matches with real-time alerts.
+- Simulated attack scenarios by generating sample log files containing both benign and malicious IPs to validate detection accuracy.
+- Verified functionality by observing alerts for known malicious IPs, demonstrating effective integration of external threat intelligence into local monitoring workflows.
+- Provided reproducible setup instructions, including API key configuration, database initialization, and log scanning examples, to support further development and educational use.
 
